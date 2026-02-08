@@ -13,22 +13,7 @@ This is hard to read, hard to debug, and hard to maintain.
 */
 const fsCallback = require('fs');
 const getStoryCallbackHell = (callback) => {
-  fsCallback.readFile(getPath('story-part-1.txt'), 'utf-8', (err, part1) => {
-    if (err) { console.error(err); return; }
-    fsCallback.readFile(getPath('story-part-2.txt'), 'utf-8', (err, part2) => {
-      if (err) { console.error(err); return; }
-      fsCallback.readFile(getPath('story-part-3.txt'), 'utf-8', (err, part3) => {
-        if (err) { console.error(err); return; }
-        fsCallback.readFile(getPath('story-part-4.txt'), 'utf-8', (err, part4) => {
-          if (err) { console.error(err); return; }
-          const story = [part1, part2, part3, part4].join('\n');
-          callback(story);
-        });
-      });
-    });
-  });
 };
-
 
 // TODO: Rewrite using promise chaining - read files sequentially
 // Hints:
@@ -37,20 +22,31 @@ const getStoryCallbackHell = (callback) => {
 // - Each .then() should: read the next file, push to storyParts, return the next read
 // - The final .then() should join and return the complete story
 // - Don't forget .catch() for error handling!
+
 const readFileSequentially = () => {
-  const storyParts = [];
+  const storyParts = []
   return fs.readFile(getPath('story-part-1.txt'), 'utf-8')
     .then((part1) => {
+      storyParts.push(part1)
+      return fs.readFile(getPath('story-part-2.txt'), 'utf-8')
     })
+
     .then((part2) => {
+      storyParts.push(part2)
+      return fs.readFile(getPath('story-part-3.txt'), 'utf-8')
     })
+
     .then((part3) => {
+      storyParts.push(part3)
+      return fs.readFile(getPath('story-part-4.txt'), 'utf-8')
     })
     .then((part4) => {
+      storyParts.push(part4)
+      return storyParts.join('\n')
     })
     .catch((err) => {
-      console.error(err);
-    });
+      console.error(err)
+    })
 };
 
 // TODO: Rewrite using Promise.all - read all files in parallel
@@ -60,6 +56,19 @@ const readFileSequentially = () => {
 // - Use .then() to join the parts after Promise.all resolves
 // - Don't forget .catch() for error handling!
 const readFilesParallel = () => {
+  const filePromises = [
+    fs.readFile(getPath('story-part-1.txt'), 'utf-8'),
+    fs.readFile(getPath('story-part-2.txt'), 'utf-8'),
+    fs.readFile(getPath('story-part-3.txt'), 'utf-8'),
+    fs.readFile(getPath('story-part-4.txt'), 'utf-8')
+  ]
+  return Promise.all(filePromises)
+    .then((storyParts) => {
+      return storyParts.join('\n')
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 };
 
 module.exports = {
